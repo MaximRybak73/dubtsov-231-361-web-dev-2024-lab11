@@ -51,37 +51,40 @@
         <div id="main_menu" style="margin-left:10px;">
             <?php
             $contentParam = isset($_GET['content']) ? '&content=' . $_GET['content'] : '';
-            $htmlType = $_GET['html_type'] ?? 'TABLE';
-
+            $htmlType = $_GET['html_type'] ?? 'TABLE'; //?? - установить значение по умолчанию
+            
             echo '<a href="?html_type=TABLE' . $contentParam . '"' .
-                ($htmlType == 'TABLE' ? ' class="selected"' : '') .
+                ($htmlType === 'TABLE' && isset($_GET['html_type']) ? ' class="selected"' : '') . 
                 '>Табличная форма</a> | ';
 
             echo '<a href="?html_type=DIV' . $contentParam . '"' .
-                ($htmlType == 'DIV' ? ' class="selected"' : '') .
+                ($htmlType === 'DIV' ? ' class="selected"' : '') .
                 '>Блочная форма</a>';
             ?>
+
+
         </div>
     </header>
 
     <div class="container">
         <div id="product_menu" style="margin-left:10px; margin-top:10px;">
             <?php
-            echo '<a href="?html_type=' . $htmlType . '&content=all"' .
-                (isset($_GET['content']) && $_GET['content'] === 'all' ? ' class="selected"' : '') .
+            echo '<a href="?html_type=' . ($htmlType ?? 'TABLE') . '&content=all"' .
+                (!isset($_GET['content']) || $_GET['content'] === 'all' ? ' class="selected"' : '') .
                 '>Вся таблица умножения</a>';
 
             for ($i = 2; $i <= 9; $i++) {
-                echo '<a href="?html_type=' . $htmlType . '&content=' . $i . '"' .
+                echo '<a href="?html_type=' . ($htmlType ?? 'TABLE') . '&content=' . $i . '"' .
                     (isset($_GET['content']) && $_GET['content'] == $i ? ' class="selected"' : '') .
                     ' style="margin-bottom:5px;">Таблица умножения на ' . $i . '</a>';
             }
             ?>
+
         </div>
 
-        <div id="multiplication_table" style="margin-left:10px; margin-top:10px;">
+        <div id="multiplication_table" style="margin-left:40px; margin-top:10px;">
             <?php
-            function outNumAsLink($x, $resetHtmlType = false)
+            function outNumAsLink($x, $resetHtmlType = false)//сгенерировать ссылку на указанное число $x
             {
                 $link = '?content=' . $x;
                 if (!$resetHtmlType && isset($_GET['html_type'])) {
@@ -90,7 +93,7 @@
                 echo '<a href="' . $link . '">' . $x . '</a>';
             }
 
-            function outResult($result)
+            function outResult($result)//проверить и вывести результат умножения, как ссылку или текст
             {
                 // Если результат <= 9, делаем ссылку, иначе выводим просто число
                 if ($result <= 9) {
@@ -100,18 +103,18 @@
                 }
             }
 
-            function outTableForm($number = null)
+            function outTableForm($number = null) //вывод таблицы в табличной форме
             {
                 echo '<table border="2">';
                 for ($i = 1; $i <= 9; $i++) {
                     echo '<tr>';
                     if ($number) {
                         echo '<td>';
-                        outNumAsLink($number, true);
+                        outNumAsLink($number, true);//н-р "?content=5"
                         echo ' x ';
                         outNumAsLink($i, true);
                         echo ' = ';
-                        outResult($number * $i); // Используем функцию outResult для результата
+                        outResult($number * $i);
                         echo '</td>';
                     } else {
                         for ($j = 1; $j <= 9; $j++) {
@@ -120,7 +123,7 @@
                             echo ' x ';
                             outNumAsLink($i, true);
                             echo ' = ';
-                            outResult($j * $i); // Используем функцию outResult для результата
+                            outResult($j * $i);
                             echo '</td>';
                         }
                     }
@@ -155,7 +158,7 @@
                 }
                 echo '</div>';
             }
-
+            //определить, какую таблицу отображать и в каком формате
             $content = isset($_GET['content']) && $_GET['content'] != 'all' ? (int) $_GET['content'] : null;
 
             if ($htmlType == 'TABLE') {
@@ -170,6 +173,7 @@
         <div id="footer"
             style="font-size: 14px; background-color: #336699; color: #fff; padding: 10px 0; text-align: center; position: fixed; bottom: 0; width: 100%;">
             <?php
+            date_default_timezone_set('Europe/Moscow');
             echo "<p>Тип верстки: " . ($htmlType === 'TABLE' ? 'Табличная' : 'Блочная') . "</p>";
             echo "<p>Таблица умножения: " . ($content ? "На $content" : 'Полная') . "</p>";
             echo "<p>Дата и время: " . date('Y-m-d H:i:s') . "</p>";
